@@ -1,0 +1,8 @@
+flask
+gunicorn
+celery
+redis
+requests
+pylint
+pytest
+click==7.1.2

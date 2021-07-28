@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  redis:
+        image: redis:latest
+        ports:
+            - 6379:6379
+        volumes:
+            - ./config/redis.conf:/redis.conf
+        command: [ "redis-server", "/redis.conf" ]
+
+  flask_app:
+    container_name: flask_app
+    restart: always
+    build: ./flask_app
+    ports:
+      - "8793:8793"
+    command: gunicorn -w 1 -b 0.0.0.0:8793 wsgi:app --timeout 60
+    depends_on:
+      - redis
+
+  celery:
+    build: ./flask_app
+    depends_on:
+      - redis
+      - flask_app
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flask_app
+      
